@@ -1,0 +1,17 @@
+{
+  "name": "iota-mosquitto-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "wemo-publish.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benjamin Cabé",
+  "license": "EPL-2.0",
+  "dependencies": {
+    "iota.lib.js": "^0.4.3",
+    "mongodb": "^3.0.0-rc0",
+    "moving-average": "^1.0.0",
+    "wemo": "^0.2.1"
+  }
+}
