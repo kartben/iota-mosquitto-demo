@@ -10,6 +10,7 @@
   "license": "EPL-2.0",
   "dependencies": {
     "iota.lib.js": "^0.4.3",
+    "moment": "^2.20.0",
     "mongodb": "^3.0.0-rc0",
     "moving-average": "^1.0.0",
     "wemo": "^0.2.1"
