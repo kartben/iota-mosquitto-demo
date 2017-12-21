@@ -16,18 +16,14 @@ var ma = MA(60 * 1000); // 1min
 const spawn = require('child_process').spawn;
 
 wemo.discover(function (err, deviceInfo) {
-    console.log('Wemo Device Found: %j', deviceInfo);
+    console.log('Wemo Device Found: %j', deviceInfo.serialNumber);
 
     // Get the client for the found device
     var client = wemo.client(deviceInfo);
 
-    // You definitely want to listen to error events (e.g. device went offline),
-    // Node will throw them as an exception if they are left unhandled  
     client.on('error', function (err) {
         console.log('Error: %s', err.code);
     });
-
-    // client.on('insightParams', (binaryState, instantPower, data) => console.log(instantPower + ' mW'))
 
     setInterval(function () {
         client.getInsightParams((err, binaryState, instantPower, data) => {
@@ -35,8 +31,13 @@ wemo.discover(function (err, deviceInfo) {
             console.log('moving average now is:  ', ma.movingAverage(), ' mW');
             console.log('instant power cons. is: ', instantPower, ' mW')
 
-            spawn('mosquitto_pub', ['-p', '8883', '--cafile', '/Users/kartben/mosquitto_conf_iota/ca.crt', '-u', 'superuser', '-P', 'superpassword', '-t', 'sensor/live', '-m', instantPower]);
-            spawn('mosquitto_pub', ['-p', '8883', '--cafile', '/Users/kartben/mosquitto_conf_iota/ca.crt', '-u', 'superuser', '-P', 'superpassword', '-t', 'sensor/1m', '-m', ma.movingAverage()]);
+            // we use mosquitto_pub to publish as the broker is setup for TLS-PSK based authentication, which is not supported in Node.js
+
+            // publish the instant power consumption on 'sensor/live'
+            spawn('mosquitto_pub', ['-p', '8883', '--cafile', __dirname + '/mosquitto_conf/ca.crt', '-u', 'superuser', '-P', 'superpassword', '-t', 'sensor/live', '-m', instantPower]);
+            // publish 1min moving average of the power consumption on 'sensor/1m'
+            spawn('mosquitto_pub', ['-p', '8883', '--cafile',
+                __dirname + '/mosquitto_conf/ca.crt', '-u', 'superuser', '-P', 'superpassword', '-t', 'sensor/1m', '-m', ma.movingAverage()]);
         });
     }, 500);
 
